@@ -1,2 +1,2 @@
-# Unity-Util
+# UnityUtil
 For myself
