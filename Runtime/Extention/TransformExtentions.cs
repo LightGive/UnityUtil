@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +7,7 @@ namespace LightGive.UnityUtil
     public static class TransformExtentions
     {
         /// <summary>
-        /// ZÀ•W‚Í‚»‚Ì‚Ü‚Ü‚ÅX,YÀ•W‚ğİ’è‚µ‚Ü‚·
+        /// Zåº§æ¨™ã¯ãã®ã¾ã¾ã§X,Yåº§æ¨™ã‚’è¨­å®šã—ã¾ã™
         /// </summary>
         /// <param name="transform"></param>
         /// <param name="x"></param>
@@ -18,7 +18,7 @@ namespace LightGive.UnityUtil
         }
 
         /// <summary>
-        /// ZÀ•W‚Í‚»‚Ì‚Ü‚Ü‚ÅX,YÀ•W‚ğİ’è‚µ‚Ü‚·
+        /// Zåº§æ¨™ã¯ãã®ã¾ã¾ã§X,Yåº§æ¨™ã‚’è¨­å®šã—ã¾ã™
         /// </summary>
         /// <param name="transform"></param>
         /// <param name="position"></param>
