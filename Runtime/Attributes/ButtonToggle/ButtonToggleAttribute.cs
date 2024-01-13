@@ -5,6 +5,7 @@ namespace LightGive.UnityUtil
     /// <summary>
     /// boolのフィールドをラベル＋トグルボタンのような表示にする
     /// </summary>
+    [System.AttributeUsage(System.AttributeTargets.Field)]
     public class ButtonToggleAttribute : PropertyAttribute
     {
         const string DefaultLabelTrue = "true";
