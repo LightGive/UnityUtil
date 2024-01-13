@@ -43,9 +43,9 @@ namespace LightGive.UnityUtil.Editor
             }
         }
 
-        private int GetElementIndex(SerializedProperty i_property)
+        private int GetElementIndex(SerializedProperty property)
         {
-            string propertyPath = i_property.propertyPath;
+            string propertyPath = property.propertyPath;
             var propertys = propertyPath.Split('.');
             if (propertys.Length < 3)
             {
@@ -75,16 +75,16 @@ namespace LightGive.UnityUtil.Editor
             return index;
         }
 
-        private string GetEnumName(int i_index)
+        private string GetEnumName(int index)
         {
-            if (i_index < 0)
+            if (index < 0)
             {
                 return null;
             }
 
-            if (System.Enum.IsDefined(attribute.EnumType, i_index))
+            if (System.Enum.IsDefined(attribute.EnumType, index))
             {
-                return System.Enum.GetName(attribute.EnumType, i_index);
+                return System.Enum.GetName(attribute.EnumType, index);
             }
             return null;
         }

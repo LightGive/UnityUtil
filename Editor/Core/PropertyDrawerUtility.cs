@@ -34,7 +34,6 @@ namespace LightGive.UnityUtil.Editor
 
                 if (property.isExpanded)
                 {
-
                     using (new EditorGUI.IndentLevelScope())
                     {
                         // 最初の要素を描画
