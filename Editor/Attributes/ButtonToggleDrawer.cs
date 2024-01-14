@@ -10,20 +10,25 @@ namespace LightGive.UnityUtil.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var att = (ButtonToggleAttribute)attribute;
-            var labelRect = new Rect(position)
-            {
-                width = position.width - EditorGUIUtility.fieldWidth
-            };
-            GUI.Label(labelRect, att.Label);
 
-            var buttonRect = new Rect(position)
+            if (!string.IsNullOrEmpty(att.Label))
             {
-                x = position.x + EditorGUIUtility.labelWidth,
-                width = position.width - EditorGUIUtility.labelWidth
-            };
+                var labelRect = new Rect(position)
+                {
+                    width = position.width - EditorGUIUtility.fieldWidth
+                };
+                GUI.Label(labelRect, att.Label);
+
+                position = new Rect(position)
+                {
+                    x = position.x + EditorGUIUtility.labelWidth,
+                    width = position.width - EditorGUIUtility.labelWidth
+                };
+            }
+
             EditorGUI.BeginChangeCheck();
             property.boolValue = GUI.Toggle(
-                buttonRect,
+                position,
                 property.boolValue,
                 property.boolValue ? att.LabelTrue : att.LabelFalse,
                 GUI.skin.button);

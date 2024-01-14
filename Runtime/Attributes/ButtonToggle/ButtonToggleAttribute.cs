@@ -10,13 +10,24 @@ namespace LightGive.UnityUtil
     {
         const string DefaultLabelTrue = "true";
         const string DefaultLabelFalse = "false";
-        public readonly string Label = "";
-        public readonly string LabelTrue = DefaultLabelTrue;
-        public readonly string LabelFalse = DefaultLabelFalse;
+        [SerializeField] public readonly string Label = "";
+        [SerializeField] public readonly string LabelTrue = DefaultLabelTrue;
+        [SerializeField] public readonly string LabelFalse = DefaultLabelFalse;
+
         public ButtonToggleAttribute(string label)
         {
-            new ButtonToggleAttribute(label, DefaultLabelTrue, DefaultLabelFalse);
+            Label = label;
+            LabelTrue = DefaultLabelTrue;
+            LabelFalse = DefaultLabelFalse;
         }
+
+        public ButtonToggleAttribute(string labelTrue, string labelFalse)
+        {
+            Label = "";
+            LabelTrue = labelTrue;
+            LabelFalse = labelFalse;
+        }
+
         public ButtonToggleAttribute(string label, string labelTrue, string labelFalse)
         {
             Label = label;
