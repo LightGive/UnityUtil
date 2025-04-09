@@ -1,0 +1,18 @@
+{
+    "name": "LightGive.UnityUtil.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GUID:71046c3d07ec9dd478079d7e1e12865c"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
