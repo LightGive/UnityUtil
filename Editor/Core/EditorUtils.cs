@@ -1,5 +1,5 @@
 ﻿
-namespace StickFiguresFighting.Animation.Editor
+namespace LightGive.UnityUtil.Editor
 {
 	/// <summary>
 	/// エディタ拡張等で使用するユーティリティクラス
