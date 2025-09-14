@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace LightGive.UnityUtil
+namespace LightGive.UnityUtil.Runtime
 {
 	/// <summary>
 	/// Unity共通で使うシングルトン

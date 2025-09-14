@@ -1,7 +1,8 @@
+Ôªøusing LightGive.UnityUtil.Runtime;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace LightGive.UnityUtil.Math
+namespace LightGive.UnityUtil.Tests
 {
 	public class BasicMathTest
 	{
@@ -16,20 +17,20 @@ namespace LightGive.UnityUtil.Math
 				new Vector3(0.5f,-0.5f,0.0f)
 			};
 
-			// âEâÒÇËÇ∆ç∂âÒÇËÇ≈à·Ç¢Ç™ñ≥Ç¢Ç©
-			// ëOå„ç∂âEÇ≈à·Ç¢Ç™ñ≥Ç¢Ç©
+			// Âè≥Âõû„Çä„Å®Â∑¶Âõû„Çä„ÅßÈÅï„ÅÑ„ÅåÁÑ°„ÅÑ„Åã
+			// ÂâçÂæåÂ∑¶Âè≥„ÅßÈÅï„ÅÑ„ÅåÁÑ°„ÅÑ„Åã
 			Assert.That(BasicMath.PointInOutForSquareInteriorAngleIn180Dgree(Vector3.zero, square[0], square[1], square[2], square[3]), Is.EqualTo(true));
 			Assert.That(BasicMath.PointInOutForSquareInteriorAngleIn180Dgree(Vector3.zero, square[3], square[2], square[1], square[0]), Is.EqualTo(true));
-			// âE
+			// Âè≥
 			Assert.That(BasicMath.PointInOutForSquareInteriorAngleIn180Dgree(Vector3.right, square[0], square[1], square[2], square[3]), Is.EqualTo(false));
 			Assert.That(BasicMath.PointInOutForSquareInteriorAngleIn180Dgree(Vector3.right, square[3], square[2], square[1], square[0]), Is.EqualTo(false));
-			// ç∂
+			// Â∑¶
 			Assert.That(BasicMath.PointInOutForSquareInteriorAngleIn180Dgree(Vector3.left, square[0], square[1], square[2], square[3]), Is.EqualTo(false));
 			Assert.That(BasicMath.PointInOutForSquareInteriorAngleIn180Dgree(Vector3.left, square[3], square[2], square[1], square[0]), Is.EqualTo(false));
-			// è„
+			// ‰∏ä
 			Assert.That(BasicMath.PointInOutForSquareInteriorAngleIn180Dgree(Vector3.up, square[0], square[1], square[2], square[3]), Is.EqualTo(false));
 			Assert.That(BasicMath.PointInOutForSquareInteriorAngleIn180Dgree(Vector3.up, square[3], square[2], square[1], square[0]), Is.EqualTo(false));
-			// â∫
+			// ‰∏ã
 			Assert.That(BasicMath.PointInOutForSquareInteriorAngleIn180Dgree(Vector3.down, square[3], square[2], square[1], square[0]), Is.EqualTo(false));
 			Assert.That(BasicMath.PointInOutForSquareInteriorAngleIn180Dgree(Vector3.down, square[3], square[2], square[1], square[0]), Is.EqualTo(false));
 		}

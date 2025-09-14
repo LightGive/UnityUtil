@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace LightGive.UnityUtil
+namespace LightGive.UnityUtil.Runtime
 {
 	public static class ReflectionHelper
     {

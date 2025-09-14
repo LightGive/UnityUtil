@@ -1,11 +1,11 @@
-using System.Text;
-using UnityEngine;
-using UnityEditor;
-using System.Linq;
-using UnityEditorInternal;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System;
+using System.Linq;
+using System.Text;
+using UnityEditor;
+using UnityEditorInternal;
+using UnityEngine;
 
 namespace LightGive.UnityUtil.Editor
 {
@@ -136,10 +136,10 @@ namespace LightGive.UnityUtil.Editor
 					continue;
 
 				builder.AppendFormat(@"
-	/// <summary>
-	/// return ""{0}""
- 	/// </summary>
-	public const string @{1} = ""{0}"";", name, Replace(name)).AppendLine();
+					/// <summary>
+					/// return ""{0}""
+ 					/// </summary>
+					public const string @{1} = ""{0}"";", name, Replace(name)).AppendLine();
 			}
 		}
 
