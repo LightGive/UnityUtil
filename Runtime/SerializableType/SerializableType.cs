@@ -2,7 +2,7 @@
 using System;
 using UnityEngine.Assertions;
 
-namespace LightGive.UnityUtil
+namespace LightGive.UnityUtil.Runtime
 {
 	/// <summary>
 	/// Unityでシリアライズ可能な型情報を保持するクラス

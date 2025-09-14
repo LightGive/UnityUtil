@@ -4,7 +4,7 @@
 using UnityEditor;
 #endif
 
-namespace LightGive.UnityUtil
+namespace LightGive.UnityUtil.Runtime
 {
 	public sealed class DisableAttribute : PropertyAttribute { }
 

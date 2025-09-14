@@ -1,17 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+ï»¿using UnityEngine;
 
-namespace LightGive.UnityUtil.Math
+namespace LightGive.UnityUtil.Runtime
 {
 	/// <summary>
-	/// Šî‘b“I‚ÈŒvZ
+	/// åŸºç¤çš„ãªè¨ˆç®—
 	/// </summary>
 	public class BasicMath
 	{
         /// <summary>
-        /// ‚Ğ‚µŒ`‚Ì“àŠO”»’è
-        /// “àŠp‚ª180“xˆÈ‰º‚Å‚ ‚é–‚ª‘O’ñ
+        /// ã²ã—å½¢ã®å†…å¤–åˆ¤å®š
+        /// å†…è§’ãŒ180åº¦ä»¥ä¸‹ã§ã‚ã‚‹äº‹ãŒå‰æ
         /// </summary>
         /// <returns></returns>
         public static bool PointInOutForSquareInteriorAngleIn180Dgree(Vector3 checkPoint, Vector3 a, Vector3 b, Vector3 c, Vector3 d)

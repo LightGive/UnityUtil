@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace LightGive.UnityUtil
+namespace LightGive.UnityUtil.Runtime
 {
     public static class TransformExtentions
     {
