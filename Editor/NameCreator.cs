@@ -77,13 +77,8 @@ namespace LightGive.UnityUtil.Editor
 			AppendClassText(builder, className, names);
 			var text = builder.ToString();
 
-			//ディレクトリがあるか
-			if (!System.IO.Directory.Exists(folderPath))
-			{
-				//ディレクトリ生成
-				Directory.CreateDirectory(folderPath);
-			}
-
+			//ディレクトリ生成
+			Directory.CreateDirectory(folderPath);
 			var filePath = Path.Combine(folderPath, $"{className}Name.cs");
 
 			//ファイル生成
@@ -144,7 +139,7 @@ namespace LightGive.UnityUtil.Editor
 			builder.AppendLine("    /// </summary>");
 			builder.AppendLine("    public static readonly string[] names = new string[]");
 			builder.AppendLine("    {");
-			var formattedNames = string.Join(",\n", distinctNames.Select(name => $"        \"{name}\""));
+			var formattedNames = string.Join("," + System.Environment.NewLine, distinctNames.Select(name => $"        \"{name}\""));
 			builder.AppendLine(formattedNames);
 			builder.AppendLine("    };");
 		}
