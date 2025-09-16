@@ -14,7 +14,7 @@ namespace LightGive.UnityUtil.Editor
 		[MenuItem("Tools/LightGive/Create Name", true)]
 		static bool Validate()
 		{
-			return (EditorApplication.isPlaying || Application.isPlaying) == false;
+			return !(EditorApplication.isPlaying || Application.isPlaying);
 		}
 
 		[MenuItem("Tools/LightGive/Create Name")]
@@ -76,7 +76,7 @@ namespace LightGive.UnityUtil.Editor
 		static void CreateClass(string className, string[] names, string folderPath)
 		{
 			var builder = new StringBuilder();
-			builder = AppendClassText(builder, className, names);
+			AppendClassText(builder, className, names);
 			var text = builder.ToString();
 
 			//ディレクトリがあるか
@@ -100,7 +100,7 @@ namespace LightGive.UnityUtil.Editor
 			}
 		}
 
-		static StringBuilder AppendClassText(StringBuilder builder, string className, string[] names)
+		static void AppendClassText(StringBuilder builder, string className, string[] names)
 		{
 			var distinctNames = names.Where(name => !string.IsNullOrEmpty(name)).Distinct().ToArray();
 
@@ -111,7 +111,6 @@ namespace LightGive.UnityUtil.Editor
 				AppendArrayText(builder, distinctNames);
 			}
 			builder.Append("}");
-			return builder;
 		}
 
 		static void AppendPropertyText(StringBuilder builder, string[] distinctNames)
@@ -146,14 +145,7 @@ namespace LightGive.UnityUtil.Editor
 
 			builder.AppendLine("    /// </summary>");
 			builder.Append("    public static readonly string[] names = new string[] { ");
-
-			for (var i = 0; i < distinctNames.Length; i++)
-			{
-				builder.Append($"\"{distinctNames[i]}\"");
-				if (i < distinctNames.Length - 1)
-					builder.Append(", ");
-			}
-
+			builder.Append(string.Join(", ", distinctNames.Select(name => $"\"{name}\"")));
 			builder.AppendLine(" };");
 		}
 
