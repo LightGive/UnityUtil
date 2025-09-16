@@ -76,7 +76,7 @@ namespace LightGive.UnityUtil.Editor
 		{
 			var builder = new StringBuilder();
 			builder = AppendClassText(builder, className, names);
-			var text = builder.ToString().Replace(",}", "}");
+			var text = builder.ToString();
 
 			//改行コードを統一
 			var eol = System.Environment.NewLine;
@@ -92,7 +92,15 @@ namespace LightGive.UnityUtil.Editor
 			var filePath = Path.Combine(folderPath, $"{className}Name.cs");
 
 			//ファイル生成
-			File.WriteAllText(filePath, text);
+			try
+			{
+				File.WriteAllText(filePath, text);
+			}
+			catch (System.Exception ex)
+			{
+				Debug.LogError($"ファイル生成に失敗しました: {filePath}\n{ex.Message}");
+				throw;
+			}
 		}
 
 		static StringBuilder AppendClassText(StringBuilder builder, string className, string[] names)
@@ -109,12 +117,10 @@ namespace LightGive.UnityUtil.Editor
 
 		static void AppendPropertyText(StringBuilder builder, string[] names)
 		{
-			var _names = names.Distinct().ToArray();
-			for (int i = 0; i < _names.Length; i++)
+			var distinctNames = names.Where(name => !string.IsNullOrEmpty(name)).Distinct().ToArray();
+			for (int i = 0; i < distinctNames.Length; i++)
 			{
-				var name = _names[i];
-				if (string.IsNullOrEmpty(name))
-					continue;
+				var name = distinctNames[i];
 
 				builder.Append($"    /// <summary>\n");
 				builder.Append($"    /// return \"{name}\"\n");
@@ -122,7 +128,7 @@ namespace LightGive.UnityUtil.Editor
 				builder.Append($"    public const string @{Replace(name)} = \"{name}\";\n");
 
 				// 最後のプロパティでない場合のみ空行を追加
-				if (i < _names.Length - 1)
+				if (i < distinctNames.Length - 1)
 				{
 					builder.Append("\n");
 				}
@@ -133,20 +139,22 @@ namespace LightGive.UnityUtil.Editor
 
 		static void AppendArrayText(StringBuilder builder, string[] names)
 		{
+			var distinctNames = names.Where(name => !string.IsNullOrEmpty(name)).Distinct().ToArray();
+
 			builder.Append("    /// <summary>\n");
 
-			for (var i = 0; i < names.Length; i++)
+			for (var i = 0; i < distinctNames.Length; i++)
 			{
-				builder.Append($"    /// <para>{i}. \"{names[i]}\"</para>\n");
+				builder.Append($"    /// <para>{i}. \"{distinctNames[i]}\"</para>\n");
 			}
 
 			builder.Append("    /// </summary>\n");
 			builder.Append("    public static readonly string[] names = new string[] { ");
 
-			for (var i = 0; i < names.Length; i++)
+			for (var i = 0; i < distinctNames.Length; i++)
 			{
-				builder.Append($"\"{names[i]}\"");
-				if (i < names.Length - 1)
+				builder.Append($"\"{distinctNames[i]}\"");
+				if (i < distinctNames.Length - 1)
 					builder.Append(", ");
 			}
 
@@ -193,7 +201,10 @@ namespace LightGive.UnityUtil.Editor
 			"<"
 		};
 
-			name = invalidChars.Aggregate(name, (current, t) => current.Replace(t, string.Empty));
+			foreach (var invalidChar in invalidChars)
+			{
+				name = name.Replace(invalidChar, string.Empty);
+			}
 
 			if (!string.IsNullOrEmpty(name) && char.IsNumber(name[0]))
 			{
