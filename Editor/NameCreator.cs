@@ -28,7 +28,7 @@ namespace LightGive.UnityUtil.Editor
 			}
 
 			// Unityプロジェクト内のパスに変換
-			string projectPath = System.IO.Path.GetFullPath("Assets").Replace("\\", "/");
+			string projectPath = Application.dataPath;
 			selectedPath = selectedPath.Replace("\\", "/");
 
 			if (!selectedPath.StartsWith(projectPath))
@@ -51,7 +51,7 @@ namespace LightGive.UnityUtil.Editor
 				CreateClass("Layer", GetLayerNames(), relativePath);
 			}
 			AssetDatabase.StopAssetEditing();
-			EditorUtility.UnloadUnusedAssetsImmediate();
+			AssetDatabase.Refresh();
 			AssetDatabase.Refresh(ImportAssetOptions.ImportRecursive);
 
 			Debug.Log($"SceneName、TagName、LayerNameクラスを{relativePath}に生成しました。");
@@ -118,7 +118,7 @@ namespace LightGive.UnityUtil.Editor
 				var name = distinctNames[i];
 
 				builder.AppendLine("    /// <summary>");
-				builder.AppendLine($"    /// <returns>\"{name}\"</returns>");
+				builder.AppendLine($"    /// \"{name}\" を表す定数です。");
 				builder.AppendLine("    /// </summary>");
 				builder.AppendLine($"    public const string @{Replace(name)} = \"{name}\";");
 
