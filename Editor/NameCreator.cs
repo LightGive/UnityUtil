@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEditor;
@@ -78,10 +79,6 @@ namespace LightGive.UnityUtil.Editor
 			builder = AppendClassText(builder, className, names);
 			var text = builder.ToString();
 
-			//改行コードを統一
-			var eol = System.Environment.NewLine;
-			text = text.Replace("\r\n", eol).Replace("\r", eol).Replace("\n", eol);
-
 			//ディレクトリがあるか
 			if (!System.IO.Directory.Exists(folderPath))
 			{
@@ -105,50 +102,49 @@ namespace LightGive.UnityUtil.Editor
 
 		static StringBuilder AppendClassText(StringBuilder builder, string className, string[] names)
 		{
-			builder.Append("public class " + className + "Name\n");
-			builder.Append("{\n");
+			var distinctNames = names.Where(name => !string.IsNullOrEmpty(name)).Distinct().ToArray();
+
+			builder.AppendLine("public class " + className + "Name");
+			builder.AppendLine("{");
 			{
-				AppendPropertyText(builder, names);
-				AppendArrayText(builder, names);
+				AppendPropertyText(builder, distinctNames);
+				AppendArrayText(builder, distinctNames);
 			}
 			builder.Append("}");
 			return builder;
 		}
 
-		static void AppendPropertyText(StringBuilder builder, string[] names)
+		static void AppendPropertyText(StringBuilder builder, string[] distinctNames)
 		{
-			var distinctNames = names.Where(name => !string.IsNullOrEmpty(name)).Distinct().ToArray();
 			for (int i = 0; i < distinctNames.Length; i++)
 			{
 				var name = distinctNames[i];
 
-				builder.Append($"    /// <summary>\n");
-				builder.Append($"    /// return \"{name}\"\n");
-				builder.Append($"    /// </summary>\n");
-				builder.Append($"    public const string @{Replace(name)} = \"{name}\";\n");
+				builder.AppendLine("    /// <summary>");
+				builder.AppendLine($"    /// return \"{name}\"");
+				builder.AppendLine("    /// </summary>");
+				builder.AppendLine($"    public const string @{Replace(name)} = \"{name}\";");
 
 				// 最後のプロパティでない場合のみ空行を追加
 				if (i < distinctNames.Length - 1)
 				{
-					builder.Append("\n");
+					builder.AppendLine();
 				}
 			}
 			// 配列の前に空行を追加
-			builder.Append("\n");
+			builder.AppendLine();
 		}
 
-		static void AppendArrayText(StringBuilder builder, string[] names)
+		static void AppendArrayText(StringBuilder builder, string[] distinctNames)
 		{
-			var distinctNames = names.Where(name => !string.IsNullOrEmpty(name)).Distinct().ToArray();
-
-			builder.Append("    /// <summary>\n");
+			builder.AppendLine("    /// <summary>");
 
 			for (var i = 0; i < distinctNames.Length; i++)
 			{
-				builder.Append($"    /// <para>{i}. \"{distinctNames[i]}\"</para>\n");
+				builder.AppendLine($"    /// <para>{i}. \"{distinctNames[i]}\"</para>");
 			}
 
-			builder.Append("    /// </summary>\n");
+			builder.AppendLine("    /// </summary>");
 			builder.Append("    public static readonly string[] names = new string[] { ");
 
 			for (var i = 0; i < distinctNames.Length; i++)
@@ -158,60 +154,36 @@ namespace LightGive.UnityUtil.Editor
 					builder.Append(", ");
 			}
 
-			builder.Append(" };\n");
+			builder.AppendLine(" };");
 		}
+
+		private static readonly HashSet<char> InvalidChars = new HashSet<char>
+		{
+			' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '-', '=', '^', '~', '¥',
+			'|', '[', '{', '@', '`', ']', '}', ':', '*', ';', '+', '/', '?', '.', '>', ',', '<'
+		};
 
 		static string Replace(string name)
 		{
 			if (string.IsNullOrEmpty(name))
 				return string.Empty;
 
-			string[] invalidChars = {
-			" ",
-			"!",
-			"\"",
-			"#",
-			"$",
-			"%",
-			"&",
-			"\'",
-			"(",
-			")",
-			"-",
-			"=",
-			"^",
-			"~",
-			"¥",
-			"|",
-			"[",
-			"{",
-			"@",
-			"`",
-			"]",
-			"}",
-			":",
-			"*",
-			";",
-			"+",
-			"/",
-			"?",
-			".",
-			">",
-			",",
-			"<"
-		};
-
-			foreach (var invalidChar in invalidChars)
+			var builder = new StringBuilder(name.Length);
+			foreach (char c in name)
 			{
-				name = name.Replace(invalidChar, string.Empty);
+				if (!InvalidChars.Contains(c))
+				{
+					builder.Append(c);
+				}
 			}
 
-			if (!string.IsNullOrEmpty(name) && char.IsNumber(name[0]))
+			var result = builder.ToString();
+			if (!string.IsNullOrEmpty(result) && char.IsNumber(result[0]))
 			{
-				name = "_" + name;
+				result = "_" + result;
 			}
 
-			return name;
+			return result;
 		}
 	}
 }
