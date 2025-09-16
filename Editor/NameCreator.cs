@@ -59,12 +59,16 @@ namespace LightGive.UnityUtil.Editor
 
 		static string[] GetLayerNames()
 		{
-			var layerNames = new string[MaxLayerCount];
+			var layerNames = new List<string>();
 			for (var i = 0; i < MaxLayerCount; i++)
 			{
-				layerNames[i] = LayerMask.LayerToName(i);
+				var layerName = LayerMask.LayerToName(i);
+				if (!string.IsNullOrEmpty(layerName))
+				{
+					layerNames.Add(layerName);
+				}
 			}
-			return layerNames.Where(name => !string.IsNullOrEmpty(name)).ToArray();
+			return layerNames.ToArray();
 		}
 
 		/// <summary>
@@ -120,7 +124,7 @@ namespace LightGive.UnityUtil.Editor
 				var name = distinctNames[i];
 
 				builder.AppendLine("    /// <summary>");
-				builder.AppendLine($"    /// return \"{name}\"");
+				builder.AppendLine($"    /// <returns>\"{name}\"</returns>");
 				builder.AppendLine("    /// </summary>");
 				builder.AppendLine($"    public const string @{Replace(name)} = \"{name}\";");
 
@@ -144,9 +148,17 @@ namespace LightGive.UnityUtil.Editor
 			}
 
 			builder.AppendLine("    /// </summary>");
-			builder.Append("    public static readonly string[] names = new string[] { ");
-			builder.Append(string.Join(", ", distinctNames.Select(name => $"\"{name}\"")));
-			builder.AppendLine(" };");
+			builder.AppendLine("    public static readonly string[] names = new string[]");
+			builder.AppendLine("    {");
+			for (var i = 0; i < distinctNames.Length; i++)
+			{
+				builder.Append($"        \"{distinctNames[i]}\"");
+				if (i < distinctNames.Length - 1)
+					builder.AppendLine(",");
+				else
+					builder.AppendLine();
+			}
+			builder.AppendLine("    };");
 		}
 
 		private static readonly HashSet<char> InvalidChars = new HashSet<char>
