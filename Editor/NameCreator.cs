@@ -91,50 +91,60 @@ namespace LightGive.UnityUtil.Editor
 
 		static StringBuilder AppendClassText(StringBuilder builder, string className, string[] names)
 		{
-			builder.AppendLine("public class " + className + "Name");
-			builder.AppendLine("{");
+			builder.Append("public class " + className + "Name\n");
+			builder.Append("{\n");
 			{
 				AppendPropertyText(builder, names);
 				AppendArrayText(builder, names);
 			}
-			builder.AppendLine("}");
+			builder.Append("}");
 			return builder;
 		}
 
 		static void AppendPropertyText(StringBuilder builder, System.Collections.Generic.IEnumerable<string> names)
 		{
 			var _names = names.Distinct().ToArray();
-			foreach (var name in _names)
+			for (int i = 0; i < _names.Length; i++)
 			{
+				var name = _names[i];
 				if (string.IsNullOrEmpty(name))
 					continue;
 
-				builder.AppendFormat(@"
-					/// <summary>
-					/// return ""{0}""
- 					/// </summary>
-					public const string @{1} = ""{0}"";", name, Replace(name)).AppendLine();
+				builder.Append($"    /// <summary>\n");
+				builder.Append($"    /// return \"{name}\"\n");
+				builder.Append($"    /// </summary>\n");
+				builder.Append($"    public const string @{Replace(name)} = \"{name}\";\n");
+
+				// 最後のプロパティでない場合のみ空行を追加
+				if (i < _names.Length - 1)
+				{
+					builder.Append("\n");
+				}
 			}
+			// 配列の前に空行を追加
+			builder.Append("\n");
 		}
 
 		static void AppendArrayText(StringBuilder builder, System.Collections.Generic.IList<string> names)
 		{
-			builder.Append("\n\t").AppendLine("/// <summary>");
+			builder.Append("    /// <summary>\n");
 
 			for (var i = 0; i < names.Count; i++)
 			{
-				builder.Append("\t").AppendFormat("/// <para>{0}. \"{1}\"</para>", i, names[i]).AppendLine();
+				builder.Append($"    /// <para>{i}. \"{names[i]}\"</para>\n");
 			}
 
-			builder.Append("\t").AppendLine("/// </summary>");
-			builder.Append("\t").Append("public static readonly string[] names = new string[]{");
+			builder.Append("    /// </summary>\n");
+			builder.Append("    public static readonly string[] names = new string[] { ");
 
-			foreach (var name in names)
+			for (var i = 0; i < names.Count; i++)
 			{
-				builder.AppendFormat(@"""{0}"",", name);
+				builder.Append($"\"{names[i]}\"");
+				if (i < names.Count - 1)
+					builder.Append(", ");
 			}
 
-			builder.AppendLine("};");
+			builder.Append(" };\n");
 		}
 
 		static string Replace(string name)
