@@ -59,16 +59,10 @@ namespace LightGive.UnityUtil.Editor
 
 		static string[] GetLayerNames()
 		{
-			var layerNames = new List<string>();
-			for (var i = 0; i < MaxLayerCount; i++)
-			{
-				var layerName = LayerMask.LayerToName(i);
-				if (!string.IsNullOrEmpty(layerName))
-				{
-					layerNames.Add(layerName);
-				}
-			}
-			return layerNames.ToArray();
+			return Enumerable.Range(0, MaxLayerCount)
+				.Select(i => LayerMask.LayerToName(i))
+				.Where(name => !string.IsNullOrEmpty(name))
+				.ToArray();
 		}
 
 		/// <summary>
@@ -108,13 +102,13 @@ namespace LightGive.UnityUtil.Editor
 		{
 			var distinctNames = names.Where(name => !string.IsNullOrEmpty(name)).Distinct().ToArray();
 
-			builder.AppendLine("public class " + className + "Name");
+			builder.AppendLine($"public class {className}Name");
 			builder.AppendLine("{");
 			{
 				AppendPropertyText(builder, distinctNames);
 				AppendArrayText(builder, distinctNames);
 			}
-			builder.Append("}");
+			builder.AppendLine("}");
 		}
 
 		static void AppendPropertyText(StringBuilder builder, string[] distinctNames)
@@ -150,14 +144,8 @@ namespace LightGive.UnityUtil.Editor
 			builder.AppendLine("    /// </summary>");
 			builder.AppendLine("    public static readonly string[] names = new string[]");
 			builder.AppendLine("    {");
-			for (var i = 0; i < distinctNames.Length; i++)
-			{
-				builder.Append($"        \"{distinctNames[i]}\"");
-				if (i < distinctNames.Length - 1)
-					builder.AppendLine(",");
-				else
-					builder.AppendLine();
-			}
+			var formattedNames = string.Join(",\n", distinctNames.Select(name => $"        \"{name}\""));
+			builder.AppendLine(formattedNames);
 			builder.AppendLine("    };");
 		}
 
@@ -172,7 +160,7 @@ namespace LightGive.UnityUtil.Editor
 			if (string.IsNullOrEmpty(name))
 				return string.Empty;
 
-			var builder = new StringBuilder(name.Length);
+			var builder = new StringBuilder(name.Length + 1);
 			foreach (char c in name)
 			{
 				if (!InvalidChars.Contains(c))
@@ -181,13 +169,12 @@ namespace LightGive.UnityUtil.Editor
 				}
 			}
 
-			var result = builder.ToString();
-			if (!string.IsNullOrEmpty(result) && char.IsNumber(result[0]))
+			if (builder.Length > 0 && char.IsNumber(builder[0]))
 			{
-				result = "_" + result;
+				builder.Insert(0, '_');
 			}
 
-			return result;
+			return builder.ToString();
 		}
 	}
 }
