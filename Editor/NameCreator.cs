@@ -8,6 +8,8 @@ namespace LightGive.UnityUtil.Editor
 {
 	public class NameCreator
 	{
+		private const int MaxLayerCount = 32;
+
 		[MenuItem("Tools/LightGive/Create Name", true)]
 		static bool Validate()
 		{
@@ -39,7 +41,11 @@ namespace LightGive.UnityUtil.Editor
 			AssetDatabase.StartAssetEditing();
 			{
 				// SceneName, TagName, LayerNameのみ生成
-				CreateClass("Scene", EditorBuildSettings.scenes.Where(scene => scene.enabled).Select<EditorBuildSettingsScene, string>(scene => Path.GetFileNameWithoutExtension(scene.path)).ToArray(), relativePath);
+				var enabledScenes = EditorBuildSettings.scenes
+					.Where(scene => scene.enabled)
+					.Select(scene => Path.GetFileNameWithoutExtension(scene.path))
+					.ToArray();
+				CreateClass("Scene", enabledScenes, relativePath);
 				CreateClass("Tag", UnityEditorInternal.InternalEditorUtility.tags, relativePath);
 				CreateClass("Layer", GetLayerNames(), relativePath);
 			}
@@ -52,8 +58,8 @@ namespace LightGive.UnityUtil.Editor
 
 		static string[] GetLayerNames()
 		{
-			var layerNames = new string[32];
-			for (var i = 0; i < 32; i++)
+			var layerNames = new string[MaxLayerCount];
+			for (var i = 0; i < MaxLayerCount; i++)
 			{
 				layerNames[i] = LayerMask.LayerToName(i);
 			}
@@ -101,7 +107,7 @@ namespace LightGive.UnityUtil.Editor
 			return builder;
 		}
 
-		static void AppendPropertyText(StringBuilder builder, System.Collections.Generic.IEnumerable<string> names)
+		static void AppendPropertyText(StringBuilder builder, string[] names)
 		{
 			var _names = names.Distinct().ToArray();
 			for (int i = 0; i < _names.Length; i++)
@@ -125,11 +131,11 @@ namespace LightGive.UnityUtil.Editor
 			builder.Append("\n");
 		}
 
-		static void AppendArrayText(StringBuilder builder, System.Collections.Generic.IList<string> names)
+		static void AppendArrayText(StringBuilder builder, string[] names)
 		{
 			builder.Append("    /// <summary>\n");
 
-			for (var i = 0; i < names.Count; i++)
+			for (var i = 0; i < names.Length; i++)
 			{
 				builder.Append($"    /// <para>{i}. \"{names[i]}\"</para>\n");
 			}
@@ -137,10 +143,10 @@ namespace LightGive.UnityUtil.Editor
 			builder.Append("    /// </summary>\n");
 			builder.Append("    public static readonly string[] names = new string[] { ");
 
-			for (var i = 0; i < names.Count; i++)
+			for (var i = 0; i < names.Length; i++)
 			{
 				builder.Append($"\"{names[i]}\"");
-				if (i < names.Count - 1)
+				if (i < names.Length - 1)
 					builder.Append(", ");
 			}
 
@@ -149,6 +155,9 @@ namespace LightGive.UnityUtil.Editor
 
 		static string Replace(string name)
 		{
+			if (string.IsNullOrEmpty(name))
+				return string.Empty;
+
 			string[] invalidChars = {
 			" ",
 			"!",
@@ -186,7 +195,7 @@ namespace LightGive.UnityUtil.Editor
 
 			name = invalidChars.Aggregate(name, (current, t) => current.Replace(t, string.Empty));
 
-			if (char.IsNumber(name[0]))
+			if (!string.IsNullOrEmpty(name) && char.IsNumber(name[0]))
 			{
 				name = "_" + name;
 			}
