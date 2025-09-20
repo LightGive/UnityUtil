@@ -20,7 +20,10 @@ namespace LightGive.UnityUtil.Runtime
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class SubclassSelectorAttribute : PropertyAttribute
 	{
-		bool _includeMono;
+		/// <summary>
+		/// MonoBehaviour を継承したクラスも選択肢に含めるかどうかを取得
+		/// </summary>
+		public bool IsIncludeMono{ get; private set; }
 
 		/// <summary>
 		/// SubclassSelectorAttribute のコンストラクタ
@@ -28,16 +31,7 @@ namespace LightGive.UnityUtil.Runtime
 		/// <param name="includeMono">MonoBehaviour を継承したクラスも選択肢に含めるかどうか</param>
 		public SubclassSelectorAttribute(bool includeMono = false)
 		{
-			_includeMono = includeMono;
-		}
-
-		/// <summary>
-		/// MonoBehaviour を継承したクラスも選択肢に含めるかどうかを取得
-		/// </summary>
-		/// <returns>MonoBehaviour を含める場合は true</returns>
-		public bool IsIncludeMono()
-		{
-			return _includeMono;
+			IsIncludeMono = includeMono;
 		}
 	}
 
@@ -146,7 +140,7 @@ namespace LightGive.UnityUtil.Runtime
 		private void Initialize(SerializedProperty property)
 		{
 			var utility = (SubclassSelectorAttribute)attribute;
-			GetAllInheritedTypes(GetType(property), utility.IsIncludeMono());
+			GetAllInheritedTypes(GetType(property), utility.IsIncludeMono);
 			GetInheritedTypeNameArrays();
 		}
 
