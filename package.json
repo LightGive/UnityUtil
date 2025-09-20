@@ -1,9 +1,7 @@
 {
   "name": "jp.lightgive.unityutil",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "displayName": "UnityUtil",
-  "unity": "2020.3",
-  "unityRelease": "22f1",
   "keywords": [
     "keyword1",
     "keyword2",
