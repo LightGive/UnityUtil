@@ -258,8 +258,10 @@ namespace LightGive.UnityUtil.Runtime
 				return null;
 			}
 
-			var assemblyName = typeNameParts[0];
-			var fullTypeName = typeNameParts[1];
+			var managedTypename = property.managedReferenceFieldTypename;
+			var splitIndex = managedTypename.IndexOf(' ');
+			var assemblyName = managedTypename.Substring(0, splitIndex);
+			var fullTypeName = managedTypename.Substring(splitIndex + 1);
 
 			var assembly = AppDomain.CurrentDomain.GetAssemblies()
 				.FirstOrDefault(a => a.GetName().Name == assemblyName);
