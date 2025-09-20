@@ -131,7 +131,16 @@ namespace LightGive.UnityUtil.Runtime
 		/// <param name="property">対象のシリアライズされたプロパティ</param>
 		private void Initialize(SerializedProperty property)
 		{
-			GetAllInheritedTypes(GetType(property));
+			var baseType = GetType(property);
+			if (baseType == null)
+			{
+				// 型を取得できない場合はエラーログを出力済みなので、空の配列で初期化
+				_inheritedTypes = new Type[] { null };
+				GetInheritedTypeNameArrays();
+				return;
+			}
+
+			GetAllInheritedTypes(baseType);
 			GetInheritedTypeNameArrays();
 		}
 
@@ -232,14 +241,43 @@ namespace LightGive.UnityUtil.Runtime
 		/// 配列やリストの場合は要素の型を返す
 		/// </summary>
 		/// <param name="property">型を取得したいプロパティ</param>
-		/// <returns>プロパティに対応する型</returns>
+		/// <returns>プロパティに対応する型、取得できない場合は null</returns>
 		public static Type GetType(SerializedProperty property)
 		{
-			var typeNameParts = property.managedReferenceFieldTypename.Split(' ');
+			var fieldTypename = property.managedReferenceFieldTypename;
+			if (string.IsNullOrEmpty(fieldTypename))
+			{
+				Debug.LogError($"managedReferenceFieldTypename が空です: {property.propertyPath}");
+				return null;
+			}
+
+			var typeNameParts = fieldTypename.Split(' ');
+			if (typeNameParts.Length < 2)
+			{
+				Debug.LogError($"managedReferenceFieldTypename の形式が無効です: {fieldTypename}");
+				return null;
+			}
+
 			var assemblyName = typeNameParts[0];
 			var fullTypeName = typeNameParts[1];
-			var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName);
-			return assembly?.GetType(fullTypeName);
+
+			var assembly = AppDomain.CurrentDomain.GetAssemblies()
+				.FirstOrDefault(a => a.GetName().Name == assemblyName);
+
+			if (assembly == null)
+			{
+				Debug.LogError($"アセンブリが見つかりません: {assemblyName}");
+				return null;
+			}
+
+			var type = assembly.GetType(fullTypeName);
+			if (type == null)
+			{
+				Debug.LogError($"型が見つかりません: {fullTypeName} (アセンブリ: {assemblyName})");
+				return null;
+			}
+
+			return type;
 		}
 	}
 #endif
