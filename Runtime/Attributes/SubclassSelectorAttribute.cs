@@ -37,7 +37,8 @@ namespace LightGive.UnityUtil.Runtime
 		/// <summary>
 		/// 型キャッシュ: 基底型をキーとして継承型配列を保存
 		/// </summary>
-		private static readonly Dictionary<Type, Type[]> _typeCache = new Dictionary<Type, Type[]>();
+		static readonly Dictionary<Type, Type[]> _typeCache = new Dictionary<Type, Type[]>();
+		static readonly Type UnityObjectType = typeof(UnityEngine.Object);
 
 		/// <summary>
 		/// 型キャッシュをクリアする（開発時のアセンブリ再読み込み用）
@@ -159,7 +160,6 @@ namespace LightGive.UnityUtil.Runtime
 			}
 
 			// キャッシュにない場合はアセンブリスキャンを実行
-			var unityObjectType = typeof(UnityEngine.Object);
 			var foundTypes = AppDomain.CurrentDomain.GetAssemblies()
 				.SelectMany(assembly =>
 				{
@@ -184,7 +184,7 @@ namespace LightGive.UnityUtil.Runtime
 					p.IsClass &&
 					!p.IsAbstract &&
 					// UnityEngine.Object派生クラスを常に除外
-					!unityObjectType.IsAssignableFrom(p))
+					!UnityObjectType.IsAssignableFrom(p))
 				.Prepend(null)
 				.ToArray();
 
