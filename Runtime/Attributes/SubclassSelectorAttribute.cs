@@ -160,6 +160,15 @@ namespace LightGive.UnityUtil.Runtime
 			}
 
 			// キャッシュにない場合はアセンブリスキャンを実行
+#if UNITY_2020_1_OR_NEWER
+			var foundTypes = TypeCache.GetTypesDerivedFrom(baseType)
+				.Where(p => p.IsClass &&
+					!p.IsAbstract &&
+					// UnityEngine.Object派生クラスを常に除外
+					!UnityObjectType.IsAssignableFrom(p))
+				.Prepend(null)
+				.ToArray();
+#else
 			var foundTypes = AppDomain.CurrentDomain.GetAssemblies()
 				.SelectMany(assembly =>
 				{
@@ -187,6 +196,7 @@ namespace LightGive.UnityUtil.Runtime
 					!UnityObjectType.IsAssignableFrom(p))
 				.Prepend(null)
 				.ToArray();
+#endif
 
 			// キャッシュに保存
 			_typeCache[baseType] = foundTypes;
