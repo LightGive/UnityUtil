@@ -1,12 +1,8 @@
 {
-    "name": "LightGive.UnityUtil.Editor",
+    "name": "jp.lightgive.unityutil.runtime",
     "rootNamespace": "",
-    "references": [
-        "GUID:71046c3d07ec9dd478079d7e1e12865c"
-    ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "references": [],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
