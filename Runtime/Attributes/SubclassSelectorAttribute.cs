@@ -48,10 +48,6 @@ namespace LightGive.UnityUtil.Runtime
 			_typeCache.Clear();
 		}
 
-		Type[] _inheritedTypes;
-		string[] _typePopupNames;
-		string[] _typeFullNames;
-		List<string> _typePopupNamesList;
 
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
@@ -60,11 +56,23 @@ namespace LightGive.UnityUtil.Runtime
 				return new PropertyField(property);
 			}
 
-			Initialize(property);
-			var currentTypeIndex = GetCurrentTypeIndex(property.managedReferenceFullTypename);
+			// 型情報をローカル変数として取得
+			var baseType = GetType(property);
+			if (baseType == null)
+			{
+				// 型を取得できない場合はエラーログを出力済みなので、デフォルトのPropertyFieldを返す
+				return new PropertyField(property);
+			}
+
+			var inheritedTypes = GetAllInheritedTypes(baseType);
+			var typePopupNames = inheritedTypes.Select(type => type == null ? "<null>" : type.ToString()).ToArray();
+			var typeFullNames = inheritedTypes.Select(type => type == null ? "" : $"{type.Assembly.ToString().Split(',')[0]} {type.FullName}").ToArray();
+			var typePopupNamesList = new List<string>(typePopupNames);
+
+			var currentTypeIndex = Array.IndexOf(typeFullNames, property.managedReferenceFullTypename);
 
 			// インデックスが範囲外の場合は0にセット
-			if (currentTypeIndex < 0 || currentTypeIndex >= _typePopupNames.Length)
+			if (currentTypeIndex < 0 || currentTypeIndex >= typePopupNames.Length)
 			{
 				currentTypeIndex = 0;
 			}
@@ -84,14 +92,17 @@ namespace LightGive.UnityUtil.Runtime
 			headerRow.Add(label);
 
 			// ドロップダウンを追加
-			var dropdown = new DropdownField(_typePopupNamesList, currentTypeIndex);
+			var dropdown = new DropdownField(typePopupNamesList, currentTypeIndex);
 			dropdown.style.width = 150;
 			dropdown.RegisterValueChangedCallback(evt =>
 			{
-				var selectedIndex = _typePopupNamesList.IndexOf(evt.newValue);
+				var selectedIndex = typePopupNamesList.IndexOf(evt.newValue);
 				if (selectedIndex >= 0)
 				{
-					UpdatePropertyToSelectedTypeIndex(property, selectedIndex);
+					// 型更新ロジックを直接記述
+					var selectedType = inheritedTypes[selectedIndex];
+					property.managedReferenceValue = selectedType == null ? null : Activator.CreateInstance(selectedType);
+					property.serializedObject.ApplyModifiedProperties();
 				}
 			});
 			headerRow.Add(dropdown);
@@ -109,8 +120,7 @@ namespace LightGive.UnityUtil.Runtime
 				copy.NextVisible(true);
 				while (!SerializedProperty.EqualContents(copy, endProperty))
 				{
-					var childField = new PropertyField(copy);
-					childField.Bind(property.serializedObject);
+					var childField = new PropertyField(copy.Copy());
 					childrenContainer.Add(childField);
 					if (!copy.NextVisible(false))
 					{
@@ -125,47 +135,17 @@ namespace LightGive.UnityUtil.Runtime
 		}
 
 		/// <summary>
-		/// プロパティドロワーの初期化処理
-		/// 継承型の取得と表示名配列の生成を行う
-		/// </summary>
-		/// <param name="property">対象のシリアライズされたプロパティ</param>
-		private void Initialize(SerializedProperty property)
-		{
-			var baseType = GetType(property);
-			if (baseType == null)
-			{
-				// 型を取得できない場合はエラーログを出力済みなので、空の配列で初期化
-				_inheritedTypes = new Type[] { null };
-				GetInheritedTypeNameArrays();
-				return;
-			}
-
-			GetAllInheritedTypes(baseType);
-			GetInheritedTypeNameArrays();
-		}
-
-		/// <summary>
-		/// 現在選択されている型のインデックスを取得
-		/// </summary>
-		/// <param name="typeFullName">型の完全名</param>
-		/// <returns>型のインデックス</returns>
-		private int GetCurrentTypeIndex(string typeFullName)
-		{
-			return Array.IndexOf(_typeFullNames, typeFullName);
-		}
-
-		/// <summary>
 		/// 指定された基底型から継承された全ての型を取得
 		/// abstractクラスとUnityEngine.Object派生クラスは自動的に除外する（キャッシュ機能付き）
 		/// </summary>
 		/// <param name="baseType">基底型</param>
-		void GetAllInheritedTypes(Type baseType)
+		/// <returns>継承型の配列</returns>
+		static Type[] GetAllInheritedTypes(Type baseType)
 		{
 			// キャッシュから取得を試行
 			if (_typeCache.TryGetValue(baseType, out var cachedTypes))
 			{
-				_inheritedTypes = cachedTypes;
-				return;
+				return cachedTypes;
 			}
 
 			// キャッシュにない場合はアセンブリスキャンを実行
@@ -209,31 +189,7 @@ namespace LightGive.UnityUtil.Runtime
 
 			// キャッシュに保存
 			_typeCache[baseType] = foundTypes;
-			_inheritedTypes = foundTypes;
-		}
-
-		/// <summary>
-		/// 継承型の表示名配列と完全名配列を生成
-		/// </summary>
-		private void GetInheritedTypeNameArrays()
-		{
-			_typePopupNames = _inheritedTypes.Select(type => type == null ? "<null>" : type.ToString()).ToArray();
-			_typeFullNames = _inheritedTypes.Select(type => type == null ? "" : $"{type.Assembly.ToString().Split(',')[0]} {type.FullName}").ToArray();
-
-			// ToList()の結果をキャッシュして再利用
-			_typePopupNamesList = new List<string>(_typePopupNames);
-		}
-
-		/// <summary>
-		/// 選択された型インデックスに基づいてプロパティの値を更新
-		/// </summary>
-		/// <param name="property">更新対象のプロパティ</param>
-		/// <param name="selectedTypeIndex">選択された型のインデックス</param>
-		private void UpdatePropertyToSelectedTypeIndex(SerializedProperty property, int selectedTypeIndex)
-		{
-			Type selectedType = _inheritedTypes[selectedTypeIndex];
-			property.managedReferenceValue = selectedType == null ? null : Activator.CreateInstance(selectedType);
-			property.serializedObject.ApplyModifiedProperties();
+			return foundTypes;
 		}
 
 		/// <summary>
