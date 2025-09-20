@@ -16,23 +16,14 @@ namespace LightGive.UnityUtil.Runtime
 	/// https://github.com/baba-s/Unity-SerializeReferenceExtensions
 	/// 上記URLで公開されている Unity SerializeReferenceExtensionsの
 	/// レイアウトをVisualElementのPropertyDrawerで作成し直して調整したもの
+	/// SerializeReferenceフィールドでサブクラスを選択できるドロップダウンを表示する
+	///
+	/// ⚠️ 注意: UnityEngine.Object派生クラス（MonoBehaviour、ScriptableObject等）は
+	/// SerializeReferenceの制限により自動的に除外されます
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class SubclassSelectorAttribute : PropertyAttribute
 	{
-		/// <summary>
-		/// MonoBehaviour を継承したクラスも選択肢に含めるかどうかを取得
-		/// </summary>
-		public bool IsIncludeMono{ get; private set; }
-
-		/// <summary>
-		/// SubclassSelectorAttribute のコンストラクタ
-		/// </summary>
-		/// <param name="includeMono">MonoBehaviour を継承したクラスも選択肢に含めるかどうか</param>
-		public SubclassSelectorAttribute(bool includeMono = false)
-		{
-			IsIncludeMono = includeMono;
-		}
 	}
 
 #if UNITY_EDITOR && UNITY_2019_3_OR_NEWER
@@ -44,9 +35,9 @@ namespace LightGive.UnityUtil.Runtime
 	public class SubclassSelectorDrawer : PropertyDrawer
 	{
 		/// <summary>
-		/// 型キャッシュ: (基底型, MonoBehaviour含む) をキーとして継承型配列を保存
+		/// 型キャッシュ: 基底型をキーとして継承型配列を保存
 		/// </summary>
-		private static readonly Dictionary<(Type baseType, bool includeMono), Type[]> _typeCache = new Dictionary<(Type, bool), Type[]>();
+		private static readonly Dictionary<Type, Type[]> _typeCache = new Dictionary<Type, Type[]>();
 
 		/// <summary>
 		/// 型キャッシュをクリアする（開発時のアセンブリ再読み込み用）
@@ -139,8 +130,7 @@ namespace LightGive.UnityUtil.Runtime
 		/// <param name="property">対象のシリアライズされたプロパティ</param>
 		private void Initialize(SerializedProperty property)
 		{
-			var utility = (SubclassSelectorAttribute)attribute;
-			GetAllInheritedTypes(GetType(property), utility.IsIncludeMono);
+			GetAllInheritedTypes(GetType(property));
 			GetInheritedTypeNameArrays();
 		}
 
@@ -156,23 +146,20 @@ namespace LightGive.UnityUtil.Runtime
 
 		/// <summary>
 		/// 指定された基底型から継承された全ての型を取得
-		/// abstractクラスは除外する（キャッシュ機能付き）
+		/// abstractクラスとUnityEngine.Object派生クラスは自動的に除外する（キャッシュ機能付き）
 		/// </summary>
 		/// <param name="baseType">基底型</param>
-		/// <param name="includeMono">MonoBehaviour を継承した型を含めるかどうか</param>
-		void GetAllInheritedTypes(Type baseType, bool includeMono)
+		void GetAllInheritedTypes(Type baseType)
 		{
-			var cacheKey = (baseType, includeMono);
-
 			// キャッシュから取得を試行
-			if (_typeCache.TryGetValue(cacheKey, out var cachedTypes))
+			if (_typeCache.TryGetValue(baseType, out var cachedTypes))
 			{
 				_inheritedTypes = cachedTypes;
 				return;
 			}
 
 			// キャッシュにない場合はアセンブリスキャンを実行
-			var monoType = typeof(MonoBehaviour);
+			var unityObjectType = typeof(UnityEngine.Object);
 			var foundTypes = AppDomain.CurrentDomain.GetAssemblies()
 				.SelectMany(assembly =>
 				{
@@ -196,12 +183,13 @@ namespace LightGive.UnityUtil.Runtime
 					baseType.IsAssignableFrom(p) &&
 					p.IsClass &&
 					!p.IsAbstract &&
-					(!monoType.IsAssignableFrom(p) || includeMono))
+					// UnityEngine.Object派生クラスを常に除外
+					!unityObjectType.IsAssignableFrom(p))
 				.Prepend(null)
 				.ToArray();
 
 			// キャッシュに保存
-			_typeCache[cacheKey] = foundTypes;
+			_typeCache[baseType] = foundTypes;
 			_inheritedTypes = foundTypes;
 		}
 
