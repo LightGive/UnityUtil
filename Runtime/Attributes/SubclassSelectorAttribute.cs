@@ -244,22 +244,20 @@ namespace LightGive.UnityUtil.Runtime
 		/// <returns>プロパティに対応する型、取得できない場合は null</returns>
 		public static Type GetType(SerializedProperty property)
 		{
-			var fieldTypename = property.managedReferenceFieldTypename;
-			if (string.IsNullOrEmpty(fieldTypename))
+			var managedTypename = property.managedReferenceFieldTypename;
+			if (string.IsNullOrEmpty(managedTypename))
 			{
 				Debug.LogError($"managedReferenceFieldTypename が空です: {property.propertyPath}");
 				return null;
 			}
 
-			var typeNameParts = fieldTypename.Split(' ');
-			if (typeNameParts.Length < 2)
+			var splitIndex = managedTypename.IndexOf(' ');
+			if (splitIndex <= 0)
 			{
-				Debug.LogError($"managedReferenceFieldTypename の形式が無効です: {fieldTypename}");
+				Debug.LogError($"managedReferenceFieldTypename の形式が無効です: {managedTypename}");
 				return null;
 			}
 
-			var managedTypename = property.managedReferenceFieldTypename;
-			var splitIndex = managedTypename.IndexOf(' ');
 			var assemblyName = managedTypename.Substring(0, splitIndex);
 			var fullTypeName = managedTypename.Substring(splitIndex + 1);
 
