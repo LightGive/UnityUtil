@@ -199,7 +199,7 @@ namespace LightGive.UnityUtil.Runtime
 		private void GetInheritedTypeNameArrays()
 		{
 			_typePopupNames = _inheritedTypes.Select(type => type == null ? "<null>" : type.ToString()).ToArray();
-			_typeFullNames = _inheritedTypes.Select(type => type == null ? "" : string.Format("{0} {1}", type.Assembly.ToString().Split(',')[0], type.FullName)).ToArray();
+			_typeFullNames = _inheritedTypes.Select(type => type == null ? "" : $"{type.Assembly.ToString().Split(',')[0]} {type.FullName}").ToArray();
 
 			// ToList()の結果をキャッシュして再利用
 			_typePopupNamesList = new List<string>(_typePopupNames);
