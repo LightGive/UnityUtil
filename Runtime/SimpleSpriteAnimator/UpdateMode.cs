@@ -1,4 +1,4 @@
-﻿namespace LightGive.UnityUtil
+﻿namespace LightGive.UnityUtil.Runtime
 {
     /// <summary>
     /// アニメーションの更新モードを定義するEnum
