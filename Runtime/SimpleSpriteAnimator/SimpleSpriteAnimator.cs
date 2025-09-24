@@ -103,7 +103,7 @@ namespace LightGive.UnityUtil.Runtime
 		/// </summary>
 		public void Pause()
 		{
-			if (!IsPlaying || IsPaused)
+			if (!IsPlaying)
 			{
 				return;
 			}
