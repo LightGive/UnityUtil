@@ -9,13 +9,10 @@ namespace LightGive.UnityUtil.Runtime
 	/// </summary>
 	public class SimpleSpriteAnimator : MonoBehaviour
 	{
-		const int InvalidAnimationIndex = -1;
-
 		[SerializeField] SpriteRenderer _spriteRenderer;
 		[SerializeField] SimpleSpriteAnimationData[] _animationDatas;
 		[SerializeField] UpdateMode _updateMode;
 		[SerializeField] int _fps = 60;
-		int _currentAnimationIndex = InvalidAnimationIndex;
 		int _currentSpriteIndex;
 		float _currentTime;
 		float _timePerSprite;
@@ -72,9 +69,10 @@ namespace LightGive.UnityUtil.Runtime
 		}
 
 		/// <summary>
-		/// 指定されたインデックスのアニメーションを再生開始する
+		/// 指定されたインデックスのアニメーションを最初から再生開始する
 		/// </summary>
 		/// <param name="index">再生するアニメーションのインデックス（デフォルト: 0）</param>
+		/// <remarks>既に同じアニメーションが再生中でも最初からリスタートします</remarks>
 		public void Play(int index = 0)
 		{
 			if (!IsValidAnimationIndex(index))
@@ -83,12 +81,8 @@ namespace LightGive.UnityUtil.Runtime
 				return;
 			}
 
-			// 新しいアニメーションに変更する場合のみリセット
-			if (_currentAnimationIndex != index)
-			{
-				SetCurrentAnimation(index);
-			}
-
+			// 常に最初から再生（予測可能）
+			SetCurrentAnimation(index);
 			State = AnimationState.Playing;
 		}
 
@@ -119,13 +113,14 @@ namespace LightGive.UnityUtil.Runtime
 		/// <summary>
 		/// アニメーションを停止し、状態をリセットする
 		/// </summary>
+		/// <remarks>スプライトは非表示にせず、最後のフレームを表示し続けます</remarks>
 		public void Stop()
 		{
 			State = AnimationState.Stopped;
-			_currentAnimationIndex = InvalidAnimationIndex;
 			_currentSpriteIndex = 0;
 			_currentTime = 0f;
 			_currentAnimationData = null;
+			// スプライトは非表示にしない
 		}
 
 		/// <summary>
@@ -178,13 +173,7 @@ namespace LightGive.UnityUtil.Runtime
 
 		void SetCurrentAnimation(int index)
 		{
-			if (!IsValidAnimationIndex(index))
-			{
-				Debug.LogError($"SetCurrentAnimation: 無効なインデックス {index}");
-				return;
-			}
-
-			_currentAnimationIndex = index;
+			// Play()で既にバリデーション済みのため、チェック不要
 			_currentAnimationData = _animationDatas[index];
 			_currentSpriteIndex = 0;
 			_currentTime = 0f;
